@@ -11,6 +11,5 @@ public class Cars {
     @Id
     private int id;
     private String name;
-    private int quantity;
     private int precio;
 }

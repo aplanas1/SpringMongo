@@ -1,7 +1,7 @@
 package com.example.springmongo.controller;
 
 import com.example.springmongo.model.Cars;
-import com.example.springmongo.repositories.CarsDao;
+import com.example.springmongo.repositories.CarsDAO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,71 +14,71 @@ import java.util.List;
 
 @Controller
 public class CarsController {
+    CarsDAO carsDAO;
 
-    CarsDao carsDao;
 
     @Autowired
-    public CarsController(CarsDao carsDao) {
-        this.carsDao = carsDao;
+    public CarsController(CarsDAO animalDAO) {
+        this.carsDAO = animalDAO;
     }
 
     public List<Cars> getAllCars() {
-        return carsDao.findAll();
+        return carsDAO.findAll();
     }
 
     public void addAllCars(List<Cars> cars) {
-        carsDao.saveAll(cars);
+        carsDAO.saveAll(cars);
     }
 
     public void añadir(Cars cars){
-        if (!carsDao.existsById(cars.getId())){
-            carsDao.save(cars);
+        if (!carsDAO.existsById(cars.getId())){
+            carsDAO.save(cars);
         }
     }
 
     public Cars getCars(int id){
-        return carsDao.findById(id).get();
+        return carsDAO.findById(id).get();
+    }
+
+    public void deleteById(int id){
+        carsDAO.deleteById(id);
+    }
+
+    public void actualizar(int id, Cars animal) {
+        Cars real = getCars(id);
+
+        real.setName(animal.getName());
+        real.setPrecio(animal.getPrecio());
+        //real.setQuantity(animal.getQuantity());
+
+        carsDAO.save(real);
     }
 
     public void actualizarTodo(List<Cars> cars){
-        for (Cars p : getAllCars()){
-            for (Cars pp: cars){
-                if (p.getId() == pp.getId()){
-                    p.setName(pp.getName());
-                    p.setPrecio(pp.getPrecio());
-                    p.setQuantity(pp.getQuantity());
-                    carsDao.save(p);
+        for (Cars c : getAllCars()){
+            for (Cars cc: cars){
+                if (c.getId() == cc.getId()){
+                    c.setName(cc.getName());
+                    c.setPrecio(cc.getPrecio());
+                    //p.setQuantity(pp.getQuantity());
+                    carsDAO.save(c);
                 }
             }
         }
     }
 
-    public void deleteById(int id){
-        carsDao.deleteById(id);
-    }
-
-    public void actualizar(int id, Cars cars) {
-        Cars real = getCars(id);
-
-        real.setName(cars.getName());
-        real.setPrecio(cars.getPrecio());
-        real.setQuantity(cars.getQuantity());
-
-        carsDao.save(real);
-    }
-
     public void patchCars(int id, JsonPatch patch) throws JsonPatchException, JsonProcessingException {
-        Cars cars = getCars(id);
-        Cars carsPatched = applyPatch(patch, cars);
+        Cars animal = getCars(id);
+        Cars animalPatched = applyPatch(patch, animal);
 
-        carsDao.save(carsPatched);
+        carsDAO.save(animalPatched);
 
     }
 
-    private Cars applyPatch(JsonPatch patch, Cars targetCars) throws JsonPatchException, JsonProcessingException {
+    private Cars applyPatch(JsonPatch patch, Cars targetAnimal) throws JsonPatchException, JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        JsonNode patched = patch.apply(objectMapper.convertValue(targetCars, JsonNode.class));
+        JsonNode patched = patch.apply(objectMapper.convertValue(targetAnimal, JsonNode.class));
         return objectMapper.treeToValue(patched, Cars.class);
     }
 

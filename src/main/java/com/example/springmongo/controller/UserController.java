@@ -2,7 +2,7 @@ package com.example.springmongo.controller;
 
 import com.example.springmongo.model.Cars;
 import com.example.springmongo.model.User;
-import com.example.springmongo.repositories.UserDao;
+import com.example.springmongo.repositories.UserDAO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,86 +13,58 @@ import org.springframework.stereotype.Controller;
 
 import java.util.*;
 
+
 @Controller
 public class UserController {
-    UserDao userDao;
+    UserDAO userDAO;
     CarsController carsController;
-
     @Autowired
-    public UserController(UserDao userDao, CarsController carsController) {
-        this.userDao = userDao;
+    public UserController(UserDAO userDAO, CarsController carsController) {
+        this.userDAO = userDAO;
         this.carsController = carsController;
     }
 
     public List<User> getAllUsers() {
-
-        for (User u: userDao.findAll()){
-            actualizarProducto(u);
-        }
-
-        return userDao.findAll();
+        return userDAO.findAll();
     }
 
     public User getUser(int id) {
-        User user = userDao.findById(id).get();
-
-        actualizarProducto(user);
-
-        return userDao.findById(id).get();
-    }
-
-    private void actualizarProducto(User user) {
-        for (Cars p : user.getCars()){
-            for (Cars pp: carsController.getAllCars()){
-                if (carsController.carsDao.existsById(p.getId())){
-                    if (p.getId() == pp.getId()) {
-                        p.setName(pp.getName());
-                        p.setPrecio(pp.getPrecio());
-                        p.setQuantity(pp.getQuantity());
-                        userDao.save(user);
-                    }
-                }else{
-                    int i = user.getCars().indexOf(p);
-                    user.getCars().remove(i);
-                    userDao.save(user);
-                }
-            }
-        }
-
-
+        return userDAO.findById(id).get();
     }
 
     public void addUser(User user) {
         List<Cars> cars = user.getCars();
         carsController.addAllCars(cars);
-
-        userDao.save(user);
+        userDAO.save(user);
     }
 
     public void deleteUser(int id) {
         User user = getUser(id);
-        userDao.delete(user);
+        userDAO.delete(user);
     }
 
     public void putUser(User user, int id) {
 
         User real = getUser(id);
-        real.setPassword(user.getPassword());
+        // real.setName(user.getName());
         real.setName(user.getName());
+        real.setPassword(user.getPassword());
+        //real.setEmail(user.getEmail());
 
-        List<Cars> cars = user.getCars();
+
+        List<Cars> animals = user.getCars();
         for (Cars p: real.getCars()){
-            for (Cars pp: cars){
+            for (Cars pp: animals){
                 if (p.getId() == pp.getId()){
                     p.setName(pp.getName());
                     p.setPrecio(pp.getPrecio());
-                    p.setQuantity(pp.getQuantity());
+                    //p.setQuantity(pp.getQuantity());
                 }
             }
         }
         carsController.actualizarTodo(user.getCars());
 
-        userDao.save(real);
+        userDAO.save(real);
     }
 
     public void patchUser(int id, JsonPatch patch) throws JsonPatchException, JsonProcessingException {
@@ -104,7 +76,8 @@ public class UserController {
         }else if (user.getCars().size() < userPatched.getCars().size()){
             carsController.addAllCars(userPatched.getCars());
         }
-        userDao.save(userPatched);
+
+        userDAO.save(userPatched);
 
     }
 
@@ -115,28 +88,27 @@ public class UserController {
         return objectMapper.treeToValue(patched, User.class);
     }
 
-    public void addProduct(Cars cars, int id) {
+    public void addCars(Cars cars, int id) {
         User u = getUser(id);
         carsController.añadir(cars);
-        Cars p = carsController.getCars(cars.getId());
-
+        Cars c = carsController.getCars(cars.getId());
         boolean encontrar = false;
-        for (Cars pp : u.getCars()){
-            if (pp.getId() == p.getId()) {
+        for (Cars cc : u.getCars()){
+            if (cc.getId() == c.getId()) {
                 encontrar = true;
                 break;
             }
         }
         if (!encontrar){
-            u.addProduct(p);
+            u.addCars(c);
         }
-        userDao.save(u);
+        userDAO.save(u);
     }
 
-    public void deleteProductOnUser(int id, int index) {
+    public void deleteCarsOnUser(int id, int index) {
         User u = getUser(id);
         u.getCars().remove(index);
-        userDao.save(u);
+        userDAO.save(u);
     }
 
 }

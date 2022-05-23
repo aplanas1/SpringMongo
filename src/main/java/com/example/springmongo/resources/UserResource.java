@@ -38,9 +38,9 @@ public class UserResource {
         return userController.getUser(id);
     }
 
-    @GetMapping("{id}/email")
+    @GetMapping("{id}/password")
     public Map<String,String> email(@PathVariable("id") int id){
-        return Collections.singletonMap("email",userController.getUser(id).getPassword());
+        return Collections.singletonMap("password",userController.getUser(id).getPassword());
     }
 
     @PostMapping
@@ -50,8 +50,8 @@ public class UserResource {
     }
 
     @PostMapping("{id}")
-    public void addCarOnUser(@RequestBody Cars cars, @PathVariable("id") int id){
-        userController.addProduct(cars,id);
+    public void addAnimalOnUser(@RequestBody Cars cars, @PathVariable("id") int id){
+        userController.addCars(cars,id);
     }
 
     @DeleteMapping("{id}")
@@ -59,9 +59,9 @@ public class UserResource {
         userController.deleteUser(id);
     }
 
-    @DeleteMapping("{id}/products/{index}")
+    @DeleteMapping("{id}/animals/{index}")
     public void delete(@PathVariable("id") int id, @PathVariable("index") int index){
-        userController.deleteProductOnUser(id,index-1);
+        userController.deleteCarsOnUser(id,index-1);
     }
 
     @PutMapping("{id}")
